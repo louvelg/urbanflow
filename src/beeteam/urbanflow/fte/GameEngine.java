@@ -1,7 +1,9 @@
 package beeteam.urbanflow.fte;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import beeteam.urbanflow.BeeTeamData;
@@ -33,7 +35,8 @@ public class GameEngine {
 		    success = (boolean) reponse.get("success");
 		    startPending = "game_pending".equals(reponse.get("status"));
 		    if (startPending) {
-			System.out.println("Game start still pending...");
+			Object time = reponse.get("time");
+			System.out.println("Game start pending... " + time.toString());
 			Thread.sleep(10);
 		    }
 		} while (success && startPending);
@@ -56,9 +59,11 @@ public class GameEngine {
 
 		    System.out.println(String.format("%s(%d) --> %s(%d) -- %s", firstStopName, firstStopId, targetStopName, targetStopId, date));
 		    System.out.println("Preparing...");
-		    prepareNavigation(firstStopId, targetStopId, date);
+		    List<Moveset> moves = prepareNavigation(firstStopId, targetStopId, date);
 
-//test:		    mouvement(moveUrl, botSecret, 56, "13 Sep 13:20:00 2015", 1220);
+		    for (Moveset move : moves) {
+			mouvement(moveUrl, botSecret, move.trackNumber, move.connection, move.toStopId);
+		    }
 		}
 	    }
 	} catch (Exception e) {
@@ -88,10 +93,22 @@ public class GameEngine {
 	return (Map) new JsonParser().transform(reponse);
     }
 
-    protected void prepareNavigation(long firstStopId, long targetStopId, Date date) {
+    protected class Moveset {
+	long trackNumber;
+	String connection;
+	long toStopId;
+	
+	Moveset(long trackNumber, String connection, long toStopId) {
+	    this.trackNumber = trackNumber;
+	    this.connection = connection;
+	    this.toStopId = toStopId;
+	}
     }
-
-    protected void nextMove() {
+    
+    protected List<Moveset> prepareNavigation(long firstStopId, long targetStopId, Date date) {
+	List<Moveset> moves = new ArrayList<Moveset>();
+	moves.add(new Moveset(58, "13 Sep 13:20:00 2015", 1217));
+	return moves;
     }
 
 }
