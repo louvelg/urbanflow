@@ -1,5 +1,6 @@
 package beeteam.urbanflow.glo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Arret {
@@ -20,6 +21,7 @@ public class Arret {
 		this.jour = jour;
 		this.horaire = horaire;
 		this.destination = destination;
+		suivants = new ArrayList<>();
 	}
 
 	public int getTemps(Arret suivant) {
@@ -90,6 +92,53 @@ public class Arret {
 	public void setSuivants(List<Arret> suivants) {
 		this.suivants = suivants;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((destination == null) ? 0 : destination.hashCode());
+		result = prime * result + ((horaire == null) ? 0 : horaire.hashCode());
+		result = prime * result + ((jour == null) ? 0 : jour.hashCode());
+		result = prime * result + ((ligne == null) ? 0 : ligne.hashCode());
+		result = prime * result + ((station == null) ? 0 : station.hashCode());
+		result = prime * result + ((suivants == null) ? 0 : suivants.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		Arret other = (Arret) obj;
+		if (destination == null) {
+			if (other.destination != null) return false;
+		} else if (!destination.equals(other.destination)) return false;
+		if (horaire == null) {
+			if (other.horaire != null) return false;
+		} else if (!horaire.equals(other.horaire)) return false;
+		if (jour == null) {
+			if (other.jour != null) return false;
+		} else if (!jour.equals(other.jour)) return false;
+		if (ligne == null) {
+			if (other.ligne != null) return false;
+		} else if (!ligne.equals(other.ligne)) return false;
+		if (station == null) {
+			if (other.station != null) return false;
+		} else if (!station.equals(other.station)) return false;
+		if (suivants == null) {
+			if (other.suivants != null) return false;
+		} else if (!suivants.equals(other.suivants)) return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return station;
+//		return "Arret [ligne=" + ligne + ", station=" + station + ", jour=" + jour + ", horaire=" + horaire + ", destination=" + destination + ", suivants=" + suivants + "]";
+	}
+	
 	
 	
 }
