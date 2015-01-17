@@ -11,28 +11,30 @@ public class Dijkstra {
 
 	public int[][]			distances;
 	List<Arret>				graph;
-	List<Arret>				marque;
-	List<Arret>				atraiter;
 	Map<Long, Set<Arret>>	parcours;
-	Map<Long, Arret>		back;
+	Map<Arret, List<Arret>>	back2;
+	Map<Long, Set<Arret>>	back;
 
 	public List<Arret> initGraph() {
 		List<Arret> l = new ArrayList<>();
 
 		Arret a = new Arret("L1", "a", "", "12:00:00", "antares");
-		Arret b = new Arret("L1", "b", "", "12:00:00", "antares");
-		Arret c = new Arret("L1", "c", "", "12:00:00", "antares");
-		Arret d = new Arret("L1", "d", "", "12:00:00", "antares");
-		Arret e = new Arret("L1", "e", "", "12:00:00", "antares");
-		Arret f = new Arret("L1", "f", "", "12:00:00", "antares");
-		Arret g = new Arret("L1", "g", "", "12:00:00", "antares");
-		Arret h = new Arret("L1", "h", "", "12:00:00", "antares");
-		Arret i = new Arret("L1", "i", "", "12:00:00", "antares");
-		Arret j = new Arret("L1", "j", "", "12:00:00", "antares");
+		Arret b = new Arret("L1", "b", "", "12:04:00", "antares");
+		Arret c = new Arret("L1", "c", "", "12:10:00", "antares");
+		Arret d = new Arret("L1", "d", "", "12:15:00", "antares");
+		Arret e = new Arret("L1", "e", "", "12:25:00", "antares");
+		Arret f = new Arret("L1", "f", "", "12:38:00", "antares");
+		Arret g = new Arret("L1", "g", "", "12:47:00", "antares");
+		Arret h = new Arret("L1", "h", "", "12:56:00", "antares");
+		Arret i = new Arret("L1", "i", "", "13:06:00", "antares");
+		Arret j = new Arret("L1", "j", "", "13:27:00", "antares");
+		Arret k = new Arret("L1", "k", "", "12:30:00", "antares");
 
 		a.addSuivant(b);
 		a.addSuivant(c);
+		
 		a.addSuivant(e);
+		a.addSuivant(k);
 		b.addSuivant(f);
 		c.addSuivant(g);
 		c.addSuivant(h);
@@ -56,54 +58,86 @@ public class Dijkstra {
 	}
 
 	public void algo(String start, String end) {
-
-		this.graph = initGraph();
-		this.atraiter = new ArrayList<>(this.graph);
-		this.marque = new ArrayList<>();
-
-		this.distances = new int[graph.size()][graph.size()];
-		for (int i = 0; i < graph.size(); i++) {
-			for (int j = 0; j < graph.size(); j++) {
-				distances[i][j] = -1;
-			}
-		}
-
 		Arret s = Utils.searchArret(graph, start);
 		Arret e = Utils.searchArret(graph, end);
 
 		parcours = new HashMap<Long, Set<Arret>>();
+		back = new HashMap<Long, Set<Arret>>();
+		back2 = new HashMap<>();
 		addToParcours(0L, s);
-
+		addToBack(0L, s, s);
+		addToBack2(s, s);
 		while (step(e)) {}
 
-		Utils.afficheDistances(this.graph, distances);
+		List<Arret> arrets = new ArrayList<>();
+		arrets.add(e);
+		Arret prev = back2.get(arrets.get(0)).get(0);
+		while (!prev.equals(s)) {
+			arrets.add(prev);
+			prev = back2.get(prev).get(0);
+		}
+		arrets.add(s);
+		System.out.println(parcours.keySet().iterator().next() + " liste des arrets : " + arrets);
+		Utils.afficheParcours(parcours, null);
+		// Utils.afficheDistances(this.graph, distances);
 	}
 
 	public boolean step(Arret end) {
-		Utils.afficheParcours(parcours);
+		Utils.afficheParcours(parcours, null);
 
 		Long min = getDistanceMin();
 		Set<Arret> s = parcours.get(min);
 		for (Arret arretPlusProche : s) {
-			for (Arret suivant : arretPlusProche.getSuivants()) {
-				addToParcours(new Long(arretPlusProche.getTemps(suivant)) + min, suivant);
-			}
 			if (arretPlusProche.equals(end)) { return false; }
+			for (Arret suivant : arretPlusProche.getSuivants()) {
+				System.out.println(arretPlusProche.getTemps(suivant) + min);
+				addToParcours(arretPlusProche.getTemps(suivant) + min, suivant);
+				addToBack(arretPlusProche.getTemps(suivant) + min, suivant, arretPlusProche);
+				addToBack2(suivant, arretPlusProche);
+			}
 		}
 		parcours.remove(min);
-		Utils.afficheParcours(parcours);
+		Utils.afficheParcours(parcours, null);
+		Utils.afficheBack2(back2);
+
 		return true;
 	}
 
 	public void addToParcours(Long l, Arret a) {
 		if (parcours.get(l) == null) {
-			HashSet hs = new HashSet<>();
+			HashSet<Arret> hs = new HashSet<>();
 			hs.add(a);
 			parcours.put(l, hs);
 		} else {
-			Set hs = parcours.get(l);
+			Set<Arret> hs = parcours.get(l);
 			hs.add(a);
 			parcours.put(l, hs);
+		}
+	}
+
+	public void addToBack(Long l, Arret a, Arret b) {
+		if (back.get(l) == null) {
+			HashSet<Arret> hs = new HashSet<>();
+			hs.add(a);
+			// hs.add(b);
+			back.put(l, hs);
+		} else {
+			Set<Arret> hs = back.get(l);
+			hs.add(a);
+			// hs.add(b);
+			back.put(l, hs);
+		}
+	}
+
+	public void addToBack2(Arret a, Arret b) {
+		if (back2.get(a) == null) {
+			ArrayList<Arret> l = new ArrayList<>();
+			l.add(b);
+			back2.put(a, l);
+		} else {
+			List<Arret> l = back2.get(a);
+			l.add(b);
+			back2.put(a, l);
 		}
 	}
 
@@ -122,6 +156,7 @@ public class Dijkstra {
 
 	public static void main(String[] args) {
 		Dijkstra d = new Dijkstra();
+		d.graph = d.initGraph();
 		d.algo("a", "j");
 	}
 

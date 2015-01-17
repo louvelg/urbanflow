@@ -2,17 +2,16 @@ package beeteam.urbanflow.glo;
 
 import java.util.ArrayList;
 import java.util.List;
+import beeteam.urbanflow.aug.DataSearch;
 
 public class Arret {
-	String ligne;
-	String station;
-	String jour;
-	String horaire;
-	String destination;
-	
+	String		ligne;
+	String		station;
+	String		jour;
+	String		horaire;
+	String		destination;
 
-	List<Arret> suivants;
-
+	List<Arret>	suivants;
 
 	public Arret(String ligne, String station, String jour, String horaire, String destination) {
 		super();
@@ -24,70 +23,68 @@ public class Arret {
 		suivants = new ArrayList<>();
 	}
 
-	public int getTemps(Arret suivant) {
-		//TODO modifier la fonction de calcul de temps entre deux arrets
-		return 4;
+	public long getTemps(Arret suivant) {
+		String debut = this.horaire;
+		String fin = suivant.getHoraire();
+
+		Long l = null;
+		try {
+			l = DataSearch.duration_min(fin, debut);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Temps " + station + " -> " + suivant.station + " " + l);
+
+		return l;
 	}
-	
+
 	public void addSuivant(Arret suivant) {
 		this.suivants.add(suivant);
 	}
-	
 
 	public String getLigne() {
 		return ligne;
 	}
 
-
 	public void setLigne(String ligne) {
 		this.ligne = ligne;
 	}
-
 
 	public String getStation() {
 		return station;
 	}
 
-
 	public void setStation(String station) {
 		this.station = station;
 	}
-
 
 	public String getJour() {
 		return jour;
 	}
 
-
 	public void setJour(String jour) {
 		this.jour = jour;
 	}
-
 
 	public String getHoraire() {
 		return horaire;
 	}
 
-
 	public void setHoraire(String horaire) {
 		this.horaire = horaire;
 	}
-
 
 	public String getDestination() {
 		return destination;
 	}
 
-
 	public void setDestination(String destination) {
 		this.destination = destination;
 	}
 
-
 	public List<Arret> getSuivants() {
 		return suivants;
 	}
-
 
 	public void setSuivants(List<Arret> suivants) {
 		this.suivants = suivants;
@@ -136,9 +133,7 @@ public class Arret {
 	@Override
 	public String toString() {
 		return station;
-//		return "Arret [ligne=" + ligne + ", station=" + station + ", jour=" + jour + ", horaire=" + horaire + ", destination=" + destination + ", suivants=" + suivants + "]";
+		// return "Arret [ligne=" + ligne + ", station=" + station + ", jour=" + jour + ", horaire=" + horaire + ", destination=" + destination + ", suivants=" + suivants + "]";
 	}
-	
-	
-	
+
 }
