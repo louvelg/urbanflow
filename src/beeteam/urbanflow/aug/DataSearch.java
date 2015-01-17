@@ -34,6 +34,13 @@ public class DataSearch {
 	{return yyyyMMdd_HHmmss.parse(yyyyMMdd+"_"+horaire);}
 
 	
+	public static Long duration_min(String horaire1, String horaire0) throws Exception
+	{
+		Date d1 = rebuildDate("20150101",horaire1);
+		Date d0 = rebuildDate("20150101",horaire0);
+		return duration_min(d1,d0);
+	}
+	
 	public static Long duration_min(Date date1, Date date0)
 	{
 		long t = date1.getTime()-date0.getTime();
