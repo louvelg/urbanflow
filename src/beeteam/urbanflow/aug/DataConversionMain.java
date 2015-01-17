@@ -16,9 +16,12 @@ public class DataConversionMain {
 	public static void main(String[] args) throws Exception
 	{
 		File root = new File("C:\\Users\\Augustin\\Desktop\\24H");
-		DataConversion dc = new DataConversion(root);
 		
+		DataConversion dc = new DataConversion(root);
 		//dc.convertAll();
+		
+		DataSearch ds = new DataSearch(root);
+		
 		
 		// 12 janvier 2015 : lundi
 		Date date = yyyyMMdd_HHmmss.parse("20150112_080600");
@@ -26,7 +29,7 @@ public class DataConversionMain {
 		String ligne = "5_A";
 		
 		
-		Set set = dc.findConnections(date, arret, ligne);
-		SysPrint.printSet(set);
+		Set set = ds.findConnections(date,arret,ligne);
+		SysPrint.printObj(set);
 	}
 }
