@@ -13,20 +13,30 @@ public class Utils {
 			}
 		}
 	}
-	
-	public static void afficheParcours(Map<Long, Set<Arret>> parcours) {
+
+	public static void afficheParcours(Map<Long, Set<Arret>> parcours, String s) {
+		if (s != null) {
+			System.out.println("**** " + s);
+		}
 		for (Long l : parcours.keySet()) {
 			System.out.println(l + " " + parcours.get(l));
 		}
+		if (s != null) {
+			System.out.println("******************");
+		}
 	}
 	
+	public static void afficheBack2(Map<Arret, List<Arret>> back) {
+		for (Arret l : back.keySet()) {
+			System.out.println(back.get(l) + " est parent de " + l);
+		}
+	}
+
 	public static Arret searchArret(List<Arret> graph, String station) {
 		for (Arret arret : graph) {
-			if (arret.getStation().equals(station)) {
-				return arret;
-			}
+			if (arret.getStation().equals(station)) { return arret; }
 		}
-		
+
 		return null;
 	}
 }
