@@ -17,10 +17,37 @@ public class DataSearch {
 
 	
 	public static final SimpleDateFormat HHmmss = new SimpleDateFormat("HH:mm:ss");
+	public static final SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
+	public static final SimpleDateFormat yyyyMMdd_HHmmss = new SimpleDateFormat("yyyyMMdd_HH:mm:ss");
+	
+	
+	public static String jour(Date date)
+	{return DAYS[CalendarTool.dayOfWeek_index(date)-1];}
+	
+	public static String horaire(Date date) throws Exception
+	{return HHmmss.format(date);}
+	
+	public static String yyyyMMdd(Date date) throws Exception
+	{return yyyyMMdd.format(date);}
+	
+	public static Date rebuildDate(String yyyyMMdd, String horaire) throws Exception
+	{return yyyyMMdd_HHmmss.parse(yyyyMMdd+"_"+horaire);}
+
+	
+	public static Long duration_min(Date date1, Date date0)
+	{
+		long t = date1.getTime()-date0.getTime();
+		return t/60000;
+	}
+	
 	
 	public static final String[] DAYS = new String[]{"lu","ma","me","je","ve","sa","di"};
 	public static final String EXT = "tab";
-
+	
+	
+	
+	
+	
 	
 	private File outputDir;
 	
@@ -48,6 +75,9 @@ public class DataSearch {
 	
 	public String[] findNext(Date date, String arret, String ligne) throws Exception
 	{return findNext(jour(date),horaire(date),arret,ligne);}
+	
+	public Set findFirsts(Date date, String arret) throws Exception
+	{return findFirsts(jour(date),horaire(date),arret);}
 
 	
 	
@@ -219,12 +249,7 @@ public class DataSearch {
 	}	
 	
 	
-	private String jour(Date date)
-	{return DAYS[CalendarTool.dayOfWeek_index(date)-1];}
 	
-	
-	private String horaire(Date date) throws Exception
-	{return HHmmss.format(date);}
 	
 
 	

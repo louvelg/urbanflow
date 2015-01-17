@@ -21,16 +21,21 @@ public class DataConversionMain {
 		compute1(root);
 		//test(root);
 		//convert(root);
-		
 	}
 	
 	
 	
 	private static void compute1(File root) throws Exception
 	{
+		//Sat Nov 07 19:55:00 CET 2015
+		//1341
+		//1302
+		Date date = yyyyMMdd_HHmmss.parse("20151107_195500");
+		
 		Algo algo = new Algo(root);
-		//algo.compute(arret1, arret2, date);
+		algo.compute(date,"1341","1302");
 	}
+	
 	
 	
 	
