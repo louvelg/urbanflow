@@ -26,7 +26,7 @@ public class GameEngine {
 	public void gameLoop(GameMode mode, String botToken, String botSecret) {
 		System.out.println("[ Starting game run... ]");
 		try {
-			//**** DEMANDE D'UN NOUVEAU JEU ****//
+			// **** DEMANDE D'UN NOUVEAU JEU ****//
 			Map reponse = demandeDeJeu(mode, botToken, botSecret);
 			boolean success = (boolean) reponse.get("success");
 			if (success) {
@@ -34,14 +34,14 @@ public class GameEngine {
 				System.out.println("Status: " + status);
 				String checkUrl = "http://24hc15.haum.org" + (String) reponse.get("url");
 
-				//**** RECUPERATION DES INCIDENTS ****//
+				// **** RECUPERATION DES INCIDENTS ****//
 				Matcher matcher = Pattern.compile("http://24hc15.haum.org/api/play/([^/]*)/.*/verif").matcher(checkUrl);
 				matcher.matches();
 				String gameToken = matcher.group(1);
 				System.out.println("\n[ Retrieving game incidents... ]");
 				Map incidents = getIncidents(gameToken);
 
-				//**** ATTENTE ENTREE EN JEU ****//
+				// **** ATTENTE ENTREE EN JEU ****//
 				System.out.println("\n[ Entering game... ]");
 				boolean startPending;
 				do {
@@ -57,7 +57,7 @@ public class GameEngine {
 				System.out.println((String) reponse.get("message"));
 
 				if (success) {
-					//**** COLLECTE DONNEES INITIALES ****//
+					// **** COLLECTE DONNEES INITIALES ****//
 					Map firstStop = (Map) reponse.get("first_stop");
 					long firstStopId = Long.valueOf((String) firstStop.get("id"));
 					String firstStopName = (String) firstStop.get("name");
@@ -72,25 +72,26 @@ public class GameEngine {
 					// long time = Long.valueOf((String) reponse.get("time"));
 					String moveUrl = "http://24hc15.haum.org" + (String) reponse.get("url");
 
-					//**** PREPARATION DE LA NAVIGATION ****//
+					// **** PREPARATION DE LA NAVIGATION ****//
 					System.out.println(String.format("%s(%d) --> %s(%d) -- %s", firstStopName, firstStopId, targetStopName, targetStopId, date));
 					System.out.println("\n[ Preparing navigation... ]");
 					List<Moveset> moves = prepareNavigation(firstStopId, targetStopId, date, incidents);
 
-					//**** EXECUTION DES MOUVEMENTS ****//
+					// **** EXECUTION DES MOUVEMENTS ****//
 					for (Moveset move : moves) {
+						System.out.println("\n[ Moving... ]");
 						reponse = mouvement(moveUrl, botSecret, move.trackNumber, move.connection, move.toStopId);
 						success = (boolean) reponse.get("success");
 						if (!success) {
 							status = (String) reponse.get("status");
 							String message = (String) reponse.get("message");
 							System.out.println(String.format("%1$s: %2$s", status, message));
-
+						} else {
 							if ("moved".equals(status)) {
-								//**** MOUVEMENT OK ****//
+								// **** MOUVEMENT OK ****//
 								System.out.println("RAS");
 							} else if ("rerouted".equals(status)) {
-								//**** CHANGEMENT CIBLE ****//
+								// **** CHANGEMENT CIBLE ****//
 								Map newStop = (Map) reponse.get("stop");
 								long newStopId = Long.valueOf((String) newStop.get("id"));
 								String newStopName = (String) newStop.get("name");
@@ -100,8 +101,9 @@ public class GameEngine {
 								targetStopId = newStopId;
 								targetStopName = newStopName;
 							} else if ("arrived".equals(status)) {
-								//**** JEU TERMINE ****//
-								System.out.println("SUCCESS!!");
+								// **** JEU TERMINE ****//
+								String score = (String)reponse.get("score");
+								System.out.println("ARRIVED! Score=" + score);
 								break;
 							}
 						}
