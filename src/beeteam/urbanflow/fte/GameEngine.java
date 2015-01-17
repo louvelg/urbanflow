@@ -2,6 +2,7 @@ package beeteam.urbanflow.fte;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -87,27 +88,30 @@ public class GameEngine {
     }
 
     @SuppressWarnings("rawtypes")
-    private static Map mouvement(String url, String botSecret, long trackNumber, String connection, long toStopId) throws Exception {
-	String data = String.format("{\"secret_token\":\"%1$s\",\"track\":%2$d,\"connection\":\"%3$s\",\"to_stop\":%4$s,\"type\":\"move\"}", botSecret, trackNumber, connection, toStopId);
+    private static Map mouvement(String url, String botSecret, long trackNumber, Date connection, long toStopId) throws Exception {
+	String connectionStr = new SimpleDateFormat("d MMM HH:mm:ss yyyy").format(connection);
+	String data = String.format("{\"secret_token\":\"%1$s\",\"track\":%2$d,\"connection\":\"%3$s\",\"to_stop\":%4$s,\"type\":\"move\"}", botSecret, trackNumber, connectionStr, toStopId);
 	String reponse = Connection.postJson(url, data);
 	return (Map) new JsonParser().transform(reponse);
     }
 
     protected class Moveset {
 	long trackNumber;
-	String connection;
+	Date connection;
 	long toStopId;
-	
-	Moveset(long trackNumber, String connection, long toStopId) {
+
+	Moveset(long trackNumber, Date connection, long toStopId) {
 	    this.trackNumber = trackNumber;
 	    this.connection = connection;
 	    this.toStopId = toStopId;
 	}
     }
-    
+
     protected List<Moveset> prepareNavigation(long firstStopId, long targetStopId, Date date) {
 	List<Moveset> moves = new ArrayList<Moveset>();
-	moves.add(new Moveset(58, "13 Sep 13:20:00 2015", 1217));
+	Calendar calendar = Calendar.getInstance();
+	calendar.set(2015, 4, 12, 13, 20, 0);
+	moves.add(new Moveset(58, calendar.getTime(), 1217));
 	return moves;
     }
 
