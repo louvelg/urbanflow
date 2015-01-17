@@ -1,13 +1,16 @@
 package beeteam.urbanflow.aug;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import beeteam.urbanflow.aug.readtextfile.FileReadString;
@@ -26,6 +29,9 @@ public class DataSearch {
 	
 	public static String horaire(Date date) throws Exception
 	{return HHmmss.format(date);}
+	
+	public static String display(Date date) throws Exception
+	{return jour(date)+" "+horaire(date);}
 	
 	public static String yyyyMMdd(Date date) throws Exception
 	{return yyyyMMdd.format(date);}
@@ -59,6 +65,7 @@ public class DataSearch {
 	private File outputDir;
 	
 	private FileReadString frs;
+	private Properties id_name;
 	
 	
 	public DataSearch(File rootDir) throws Exception
@@ -66,38 +73,51 @@ public class DataSearch {
 		outputDir = new File(rootDir,"output");
 		outputDir.mkdirs();
 		
+		id_name = new Properties();
+		File propFile = new File(outputDir,"id_name.properties");
+		FileInputStream fis = new FileInputStream(propFile);
+		id_name.load(fis);
+		fis.close();
+		
 		frs = new FileReadString();
 	}
 	
 	
 	
 	
+	public String findStopName(String id) throws Exception
+	{
+		if(!id_name.containsKey(id))
+			throw new Exception("Stop id not found: "+id);
+		return id_name.getProperty(id);
+	}
 	
-	
-	public Set findConnectedNexts(Date date, String arret, String ligne) throws Exception
-	{return findConnectedNexts(jour(date),horaire(date),arret,ligne);}
-	
-	public Set findConnections(Date date, String arret, String ligne) throws Exception
-	{return findConnections(jour(date),horaire(date),arret,ligne);}
+	public String findStopDisplay(String id) throws Exception
+	{return findStopName(id)+" ["+id+"]";}
+
+
+
 	
 	public String[] findNext(Date date, String arret, String ligne) throws Exception
 	{return findNext(jour(date),horaire(date),arret,ligne);}
 	
-	public Set findFirsts(Date date, String arret) throws Exception
-	{return findFirsts(jour(date),horaire(date),arret);}
+	public Set findConnections2(Date date, String arret, String ligne) throws Exception
+	{return findConnections2(jour(date),horaire(date),arret,ligne);}
+	
+	public Set findConnections1(Date date, String arret, String ligne) throws Exception
+	{return findConnections1(jour(date),horaire(date),arret,ligne);}
+
 
 	
-	
-	
-	public Set findConnectedNexts(String[] infos) throws Exception
-	{return findConnectedNexts(infos[0],infos[1],infos[2],infos[3]);}
-	
-	public Set findConnections(String[] infos) throws Exception
-	{return findConnections(infos[0],infos[1],infos[2],infos[3]);}
 
 	public String[] findNext(String[] infos) throws Exception
 	{return findNext(infos[0],infos[1],infos[2],infos[3]);}
 	
+	public Set findConnections2(String[] infos) throws Exception
+	{return findConnections2(infos[0],infos[1],infos[2],infos[3]);}
+	
+	public Set findConnections1(String[] infos) throws Exception
+	{return findConnections1(infos[0],infos[1],infos[2],infos[3]);}
 	
 	
 	
@@ -107,9 +127,10 @@ public class DataSearch {
 	
 	
 	
-	public Set findConnectedNexts(String jour, String horaire, String arret, String ligne) throws Exception
+	
+	public Set findConnections2(String jour, String horaire, String arret, String ligne) throws Exception
 	{
-		Set connections = findConnections(jour,horaire,arret,ligne);
+		Set connections = findConnections1(jour,horaire,arret,ligne);
 		Set set = new HashSet();
 		Iterator it = connections.iterator();
 		while(it.hasNext())
@@ -123,17 +144,24 @@ public class DataSearch {
 
 	
 	
-	public Set findConnections(String jour, String horaire, String arret, String ligne) throws Exception
+	public Set findConnections1(String jour, String horaire, String arret, String ligne) throws Exception
 	{
 		Set set = new HashSet();
 		Set set_ligne = new HashSet();
 		
-		System.out.println("find connections");
-		System.out.println("jour:"+jour+" horaire:"+horaire+" arret:"+arret+" ligne:"+ligne);
+		//System.out.println("find connections");
+		//System.out.println("jour:"+jour+" horaire:"+horaire+" arret:"+arret+" ligne:"+ligne);
 		
 		File f = fileArret(jour,arret);
 		if(!f.exists()) throw new Exception("File not found: "+f);
+		
 		List lines = fileToList(f);
+		if(ligne==null)
+		{
+			ligne = "@";
+			lines.add(horaire+"\t"+ligne);
+		}
+		Collections.sort(lines);
 		
 		String startLine = horaire+"\t"+ligne;
 		boolean started = false;
@@ -164,54 +192,11 @@ public class DataSearch {
 	
 	
 	
-	public Set findFirsts(String jour, String horaire, String arret) throws Exception
-	{
-		Set set = new HashSet();
-		Set set_ligne = new HashSet();
-		
-		System.out.println("find firts");
-		System.out.println("jour:"+jour+" horaire:"+horaire+" arret:"+arret);
-		
-		File f = fileArret(jour,arret);
-		if(!f.exists()) throw new Exception("File not found: "+f);
-		List lines = fileToList(f);
-		
-		lines.add(horaire);
-		Collections.sort(lines);
-		
-		boolean started = false;
-		
-		for(int i=0;i<lines.size();i++)
-		{
-			String line = ((String) lines.get(i)).trim();
-			if(!started) started = line.equals(horaire);
-			else
-			{
-				String[] t = line.split("\t");
-				
-				String horaire0 = t[0];
-				String ligne0 = t[1];
-				
-				if(!set_ligne.contains(ligne0))
-				{
-					set_ligne.add(ligne0);
-					set.add(new String[]{jour,horaire0,arret,ligne0});
-				}
-			}
-		}
-		return set;
-	}
-	
-	
-	
-	
 
 	
 	
 	public String[] findNext(String jour, String horaire, String arret, String ligne) throws Exception
 	{
-		System.out.println("find next stop");
-		
 		File f = fileLigne(jour,ligne);
 		if(!f.exists()) throw new Exception("File not found: "+f);
 		List lines = fileToList(f);
@@ -266,8 +251,6 @@ public class DataSearch {
 	{
 		String s = (String) frs.transform(f);
 		String[] lines = s.trim().split("\n");
-		List list = Arrays.asList(lines);
-		Collections.sort(list);
-		return list;
+		return new ArrayList(Arrays.asList(lines));
 	}
 }

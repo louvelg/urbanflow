@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import beeteam.urbanflow.aug.jsonparser.JsonParser;
 import beeteam.urbanflow.aug.readtextfile.FileReadString;
@@ -23,6 +24,7 @@ public class DataConversion {
 	
 	private FileReadString frs;
 	private JsonParser jp;
+	private Properties prop;
 	
 	
 	
@@ -34,6 +36,7 @@ public class DataConversion {
 		
 		frs = new FileReadString();
 		jp = new JsonParser();
+		prop = new Properties();
 	}
 	
 	
@@ -43,6 +46,11 @@ public class DataConversion {
 	{
 		File[] ff = inputDir.listFiles();
 		for(File f:ff) convertFile(f);
+		
+		File propFile = new File(outputDir,"id_name.properties");
+		FileOutputStream fos = new FileOutputStream(propFile);
+		prop.store(fos,"");
+		fos.close();
 	}
 	
 	
@@ -57,10 +65,38 @@ public class DataConversion {
 		
 		String ligne = (String) root.get("track_number");
 		Map schedule = (Map) root.get("schedule");
+		List stops = (List) root.get("stops");
 		
-		
+		analyzeStops(stops);
+		analyzeSchedule(schedule,ligne);
+	}
+	
+	
+	
+	
+	private void analyzeStops(List stops) throws Exception
+	{
+		Iterator it = stops.iterator();
+		while(it.hasNext())
+		{
+			Map m = (Map) it.next();
+			String id = (String) m.get("id");
+			String name = (String) m.get("name");
+			String position = (String) m.get("position");
+			
+			if(prop.containsKey(id) && !prop.get(id).equals(name))
+				throw new Exception("stop id: "+id+" has 2 names: "+name+" & "+prop.get(id));
+			
+			prop.put(id,name);
+		}
+	}
+	
+	
+	
+	
+	private void analyzeSchedule(Map schedule, String ligne) throws Exception
+	{
 		Iterator it = schedule.keySet().iterator();
-		
 		while(it.hasNext())
 		{
 			String arret = (String) it.next();

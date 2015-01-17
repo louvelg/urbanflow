@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import beeteam.urbanflow.aug.DataSearch;
+
 public class SysPrint {
 
 	
@@ -51,5 +53,12 @@ public class SysPrint {
 	{
 		System.out.println("Array size: "+a.length);
 		for(int i=0;i<a.length;i++)	printObj(a[i]);
+	}
+	
+	public static void printInfos(DataSearch ds, String[] a) throws Exception
+	{
+		System.out.println("horaire: "+a[0]+" "+a[1]);
+		System.out.println("arret: "+ds.findStopDisplay(a[2]));
+		System.out.println("ligne: "+a[3]);
 	}
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import beeteam.urbanflow.aug.DataSearch;
+import beeteam.urbanflow.aug.sysprint.SysPrint;
 
 public class Algo {
 	
@@ -24,13 +25,25 @@ public class Algo {
 	
 	public void compute(Date date, String arret1, String arret2) throws Exception
 	{
+		System.out.println("RECHERCHE ENTRE:");
+		System.out.println("- horaire: "+DataSearch.display(date));
+		System.out.println("- début: "+ds.findStopDisplay(arret1));
+		System.out.println("- fin: "+ds.findStopDisplay(arret2));
+		System.out.println("_________________");
+		
 		Map map1 = new HashMap();
 		
-		Set set = (Set) ds.findFirsts(date, arret1);
+		Set set = (Set) ds.findConnections2(date,arret1,null);
+		
+		System.out.println("first stops found: "+set.size());
+		System.out.println("_________________");
+		
 		Iterator it = set.iterator();
 		while(it.hasNext())
 		{
 			String[] p = (String[]) it.next();
+			SysPrint.printInfos(ds,p);
+			System.out.println("_________________");
 			Long duration = duration_min(p,date);
 			add(map1,duration,p);
 		}
