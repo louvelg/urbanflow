@@ -1,6 +1,7 @@
 package beeteam.urbanflow.aug;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ public class DataConversion {
 		this.inputDir = inputDir;
 		this.outputDir = outputDir;
 		
+		outputDir.mkdirs();
+		
 		frs = new FileReadString();
 		jp = new JsonParser();
 	}
@@ -46,23 +49,31 @@ public class DataConversion {
 		Map m = (Map) jp.transform(s);
 		
 		String ligne = (String) m.get("track_number");
-		System.out.println("ligne: "+ligne);
 		
-		Iterator it = m.keySet().iterator();
+		Map schedule = (Map) m.get("schedule");
+		Iterator it = schedule.keySet().iterator();
+		
 		while(it.hasNext())
 		{
 			String id = (String) it.next();
-			System.out.println("id: "+id);
-			//List l1 = (List) m.get(id);
-			System.out.println(": "+m.get(id).getClass());
+			Map jours = (Map) schedule.get(id);
+			Iterator it1 = jours.keySet().iterator();
+			while(it1.hasNext())
+			{
+				String jour = (String) it1.next();
+				
+				File file = new File(outputDir,jour+"_"+id+".txt");
+				PrintStream p = new PrintStream(file);
+				p.println("Horaire\tLigne");
+				
+				List horaires = (List) jours.get(jour);
+				for(Object horaire:horaires)
+				{
+					p.println(horaire+"\t"+ligne);
+				}
+				p.close();
+			}
 		}
-		
-		Object schedule = m.get("schedule");
-		System.out.println("schedule type: "+schedule.getClass());
-		
-		System.out.println("File: "+f);
-		printMap(m);
-		
 	}
 	
 	
