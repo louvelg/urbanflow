@@ -11,6 +11,8 @@ import beeteam.urbanflow.fte.Moveset;
 public class Algo {
 	
 	
+	public static final boolean MOCK = false;
+	
 	private DataSearch ds;
 	
 	
@@ -22,9 +24,14 @@ public class Algo {
 	
 	public void compute(Date date, String arret1, String arret2, Map incident, List<Moveset> moves) throws Exception
 	{
-		//arret1 = "1226";
-		//arret2 = "1373";
-		//date = ds.rebuildDate("20150105","15:00:00");
+		if(MOCK)
+		{
+			arret1 = "1226";
+			arret2 = "1373";
+			date = ds.rebuildDate("20150106","15:00:00");
+			
+			System.out.println("MOCK DATA USED !!!!!!!!");
+		}
 		
 		System.out.println("RECHERCHE ENTRE:");
 		System.out.println("- horaire: "+DataSearch.display(date));
@@ -34,5 +41,12 @@ public class Algo {
 		
 		Dijkstra dj = new Dijkstra();
 		dj.algo(ds,arret1,arret2,date,moves);
+	}
+	
+	
+	
+	private void bouchon()
+	{
+		
 	}
 }

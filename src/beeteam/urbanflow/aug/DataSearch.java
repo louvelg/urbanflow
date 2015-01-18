@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import beeteam.urbanflow.aug.dijkstra.Arret;
 import beeteam.urbanflow.aug.weekday.CalendarTool;
 
 
@@ -101,7 +102,7 @@ public class DataSearch extends Data {
 
 
 	
-	public String[] findNext(Date date, String arret, String ligne) throws Exception
+	public Arret findNext(Date date, String arret, String ligne) throws Exception
 	{return findNext(jour(date),horaire(date),arret,ligne);}
 	
 	public Set findConnections2(Date date, String arret, String ligne) throws Exception
@@ -113,7 +114,7 @@ public class DataSearch extends Data {
 
 	
 
-	public String[] findNext(String[] infos) throws Exception
+	public Arret findNext(String[] infos) throws Exception
 	{return findNext(infos[0],infos[1],infos[2],infos[3]);}
 	
 	public Set findConnections2(String[] infos) throws Exception
@@ -124,6 +125,16 @@ public class DataSearch extends Data {
 	
 	
 	
+
+
+	public Arret findNext(Arret r) throws Exception
+	{return findNext(r.jour,r.horaire,r.station,r.ligne);}
+	
+	public Set<Arret> findConnections2(Arret r) throws Exception
+	{return findConnections2(r.jour,r.horaire,r.station,r.ligne);}
+	
+	public Set<Arret> findConnections1(Arret r) throws Exception
+	{return findConnections1(r.jour,r.horaire,r.station,r.ligne);}
 	
 	
 	
@@ -131,25 +142,32 @@ public class DataSearch extends Data {
 	
 	
 	
-	public Set findConnections2(String jour, String horaire, String arret, String ligne) throws Exception
+	
+	
+	
+	public Set<Arret> findConnections2(String jour, String horaire, String arret, String ligne) throws Exception
 	{
-		Set connections = findConnections1(jour,horaire,arret,ligne);
-		Set set = new HashSet();
-		Iterator it = connections.iterator();
+		Set<Arret> connections = findConnections1(jour,horaire,arret,ligne);
+		Set<Arret> set = new HashSet<>();
+		Iterator<Arret> it = connections.iterator();
 		while(it.hasNext())
 		{
-			String[] v = (String[]) it.next();
-			String[] vv = (String[]) findNext(v);
-			if(vv!=null) set.add(vv);
+			Arret v = it.next();
+			Arret vv = findNext(v);
+			if(vv!=null)
+			{
+				vv.horaire_depart = v.horaire;
+				set.add(vv);
+			}
 		}
 		return set;
 	}
 
+
 	
-	
-	public Set findConnections1(String jour, String horaire, String arret, String ligne) throws Exception
+	public Set<Arret> findConnections1(String jour, String horaire, String arret, String ligne) throws Exception
 	{
-		Set set = new HashSet();
+		Set<Arret> set = new HashSet<>();
 		Set set_ligne = new HashSet();
 		
 		//System.out.println("find connections");
@@ -184,9 +202,8 @@ public class DataSearch extends Data {
 				
 				if(!set_ligne.contains(ligne0))
 				{
-					System.out.println("ligne correspondance: "+line);
 					set_ligne.add(ligne0);
-					set.add(new String[]{jour,horaire0,arret,ligne0});
+					set.add(new Arret(this,jour,horaire0,arret,ligne0,true));
 				}
 			}
 		}
@@ -201,7 +218,7 @@ public class DataSearch extends Data {
 
 	
 	
-	public String[] findNext(String jour, String horaire, String arret, String ligne) throws Exception
+	public Arret findNext(String jour, String horaire, String arret, String ligne) throws Exception
 	{
 		String nextArret = getNextStop(ligne,arret);
 		
@@ -228,7 +245,7 @@ public class DataSearch extends Data {
 				String arret0 = t[1];
 				
 				if(arret0.equals(nextArret))
-				return new String[]{jour,horaire0,arret0,ligne};
+				return new Arret(this,jour,horaire0,arret0,ligne,false);
 			}
 		}
 		return null;

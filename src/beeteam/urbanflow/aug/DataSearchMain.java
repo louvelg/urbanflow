@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Set;
 
 import beeteam.urbanflow.aug.dijkstra.Algo;
+import beeteam.urbanflow.aug.dijkstra.Arret;
 import beeteam.urbanflow.aug.sysprint.SysPrint;
 
 public class DataSearchMain {
@@ -52,7 +53,7 @@ public class DataSearchMain {
 		
 		System.out.println("___________________");
 		
-		String[] next = ds.findNext(date,arret,ligne);
+		Arret next = ds.findNext(date,arret,ligne);
 		SysPrint.printObj(next);
 	}
 }

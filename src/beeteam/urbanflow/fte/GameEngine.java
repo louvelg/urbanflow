@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -140,7 +141,7 @@ public class GameEngine {
 
 	@SuppressWarnings("rawtypes")
 	private static Map mouvement(String url, String botSecret, String trackNumber, Date connection, long toStopId) throws Exception {
-		String connectionStr = new SimpleDateFormat("d MMM HH:mm:ss yyyy").format(connection);
+		String connectionStr = new SimpleDateFormat("d MMM HH:mm:ss yyyy",Locale.ENGLISH).format(connection);
 		String data = String.format("{\"secret_token\":\"%1$s\",\"track\":\"%2$s\",\"connection\":\"%3$s\",\"to_stop\":\"%4$s\",\"type\":\"move\"}", botSecret, trackNumber, connectionStr, toStopId);
 		String reponse = Connection.postJson(url, data);
 		return (Map) new JsonParser().transform(reponse);

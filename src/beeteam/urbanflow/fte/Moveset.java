@@ -9,6 +9,7 @@ public class Moveset {
 	long toStopId;
 
 	public Moveset(String trackNumber, Date connection, long toStopId) {
+		
 		this.trackNumber = trackNumber;
 		this.connection = connection;
 		this.toStopId = toStopId;

@@ -20,6 +20,8 @@ public class SysPrint {
 		else if(o instanceof Map) printMap((Map) o);
 		else if(o instanceof Object[]) printArray((Object[]) o);
 		
+		else System.out.println(o);
+		
 	}
 	
 	
