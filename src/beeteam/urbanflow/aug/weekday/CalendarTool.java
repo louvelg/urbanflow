@@ -71,7 +71,7 @@ public class CalendarTool {
     public static boolean isWeekend(int year, int month, int day) {return isSaturday(year,month,day) || isSunday(year,month,day);}
     
     
-    private static int dayOfWeek_(Date date)
+    public static int dayOfWeek_(Date date)
     {return getCalendar(date).get(Calendar.DAY_OF_WEEK);}
     
     public static boolean isMonday(Date date) {return dayOfWeek_(date)==Calendar.MONDAY;}

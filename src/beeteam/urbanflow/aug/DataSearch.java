@@ -1,10 +1,10 @@
 package beeteam.urbanflow.aug;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -13,19 +13,34 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import beeteam.urbanflow.aug.readtextfile.FileReadString;
 import beeteam.urbanflow.aug.weekday.CalendarTool;
 
-public class DataSearch {
+
+public class DataSearch extends Data {
 
 	
 	public static final SimpleDateFormat HHmmss = new SimpleDateFormat("HH:mm:ss");
 	public static final SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
 	public static final SimpleDateFormat yyyyMMdd_HHmmss = new SimpleDateFormat("yyyyMMdd_HH:mm:ss");
 	
+	public static final String[] DAYS = new String[]{"lu","ma","me","je","ve","sa","di"};
+	
 	
 	public static String jour(Date date)
-	{return DAYS[CalendarTool.dayOfWeek_index(date)-1];}
+	{
+		int day = CalendarTool.dayOfWeek_(date);
+		switch(day) {
+			case Calendar.MONDAY: return "lu";
+			case Calendar.TUESDAY: return "ma";
+			case Calendar.WEDNESDAY: return "me";
+			case Calendar.THURSDAY: return "je";
+			case Calendar.FRIDAY: return "ve";
+			case Calendar.SATURDAY: return "sa";
+			case Calendar.SUNDAY: return "di";
+		}
+		return null;
+	}
+	
 	
 	public static String horaire(Date date) throws Exception
 	{return HHmmss.format(date);}
@@ -54,32 +69,16 @@ public class DataSearch {
 	}
 	
 	
-	public static final String[] DAYS = new String[]{"lu","ma","me","je","ve","sa","di"};
-	public static final String EXT = "tab";
 	
 	
 	
-	
-	
-	
-	private File outputDir;
-	
-	private FileReadString frs;
-	private Properties id_name;
 	
 	
 	public DataSearch(File rootDir) throws Exception
 	{
-		outputDir = new File(rootDir,"output");
-		outputDir.mkdirs();
+		super(rootDir);
 		
-		id_name = new Properties();
-		File propFile = new File(outputDir,"id_name.properties");
-		FileInputStream fis = new FileInputStream(propFile);
-		id_name.load(fis);
-		fis.close();
-		
-		frs = new FileReadString();
+		id_name = load(new File(outputDir,"id_name.properties"));
 	}
 	
 	
@@ -197,17 +196,23 @@ public class DataSearch {
 	
 	public String[] findNext(String jour, String horaire, String arret, String ligne) throws Exception
 	{
+		String nextArret = getNextStop(ligne,arret);
+		
 		File f = fileLigne(jour,ligne);
 		if(!f.exists()) throw new Exception("File not found: "+f);
+		
 		List lines = fileToList(f);
 		
-		String startLine = horaire+"\t"+arret;
-		boolean isNext = false;
+		String startLine = horaire+"\t"+nextArret;
+		lines.add(startLine);
+		Collections.sort(lines);
+		
+		boolean isAfter = false;
 		
 		for(int i=0;i<lines.size();i++)
 		{
 			String line = ((String) lines.get(i)).trim();
-			if(!isNext) isNext = line.equals(startLine);
+			if(!isAfter) isAfter = line.equals(startLine);
 			else
 			{
 				String[] t = line.split("\t");
@@ -215,31 +220,12 @@ public class DataSearch {
 				String horaire0 = t[0];
 				String arret0 = t[1];
 				
+				if(arret0.equals(nextArret))
 				return new String[]{jour,horaire0,arret0,ligne};
 			}
 		}
 		return null;
 	}
-	
-	
-	
-	
-	
-	
-	private File fileArret(String jour, String arret)
-	{
-		File dirJ = new File(new File(outputDir,"arrets"),jour);
-		dirJ.mkdirs();
-		return new File(dirJ,arret+"."+EXT);
-	}
-	
-	private File fileLigne(String jour, String ligne)
-	{
-		File dirJ = new File(new File(outputDir,"lignes"),jour);
-		dirJ.mkdirs();
-		return new File(dirJ,ligne+"."+EXT);
-	}	
-	
 	
 	
 	
@@ -249,8 +235,23 @@ public class DataSearch {
 	
 	private List fileToList(File f) throws Exception
 	{
-		String s = (String) frs.transform(f);
+		String s = read(f);
 		String[] lines = s.trim().split("\n");
 		return new ArrayList(Arrays.asList(lines));
+	}
+	
+	
+	
+	
+	
+	
+	public String getNextStop(String ligne, String arret) throws Exception
+	{
+		File f = fileStops(ligne);
+		Properties p = load(f);
+		
+		if(p.containsKey(arret))
+			return p.getProperty(arret);
+		return null;
 	}
 }

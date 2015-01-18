@@ -9,35 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import beeteam.urbanflow.aug.jsonparser.JsonParser;
-import beeteam.urbanflow.aug.readtextfile.FileReadString;
 
-
-public class DataConversion {
+public class DataConversion extends Data {
 	
 	
-	public static final String EXT = "tab";
-
-	
-	private File inputDir;
-	private File outputDir;
-	
-	private FileReadString frs;
-	private JsonParser jp;
-	private Properties prop;
 	
 	
 	
 	public DataConversion(File rootDir) throws Exception
 	{
-		inputDir = new File(rootDir,"input");
-		outputDir = new File(rootDir,"output");
-		outputDir.mkdirs();
-		
-		frs = new FileReadString();
-		jp = new JsonParser();
-		prop = new Properties();
+		super(rootDir);
 	}
+	
+	
 	
 	
 	
@@ -47,10 +31,7 @@ public class DataConversion {
 		File[] ff = inputDir.listFiles();
 		for(File f:ff) convertFile(f);
 		
-		File propFile = new File(outputDir,"id_name.properties");
-		FileOutputStream fos = new FileOutputStream(propFile);
-		prop.store(fos,"");
-		fos.close();
+		store(new File(outputDir,"id_name.properties"),id_name);
 	}
 	
 	
@@ -59,37 +40,44 @@ public class DataConversion {
 	private void convertFile(File f) throws Exception
 	{
 		System.out.println("Converting file: "+f);
-		
-		String s = (String) frs.transform(f);
-		Map root = (Map) jp.transform(s);
+		Map root = parseJson(f);
 		
 		String ligne = (String) root.get("track_number");
 		Map schedule = (Map) root.get("schedule");
 		List stops = (List) root.get("stops");
 		
-		analyzeStops(stops);
+		analyzeStops(stops,ligne);
 		analyzeSchedule(schedule,ligne);
 	}
 	
 	
 	
 	
-	private void analyzeStops(List stops) throws Exception
+	private void analyzeStops(List stops, String ligne) throws Exception
 	{
-		Iterator it = stops.iterator();
-		while(it.hasNext())
+		Properties p = new Properties();
+		
+		String previousId = null;
+		
+		for(int i=0;i<stops.size();i++)
 		{
-			Map m = (Map) it.next();
+			Map m = (Map) stops.get(i);
 			String id = (String) m.get("id");
 			String name = (String) m.get("name");
-			String position = (String) m.get("position");
 			
-			if(prop.containsKey(id) && !prop.get(id).equals(name))
-				throw new Exception("stop id: "+id+" has 2 names: "+name+" & "+prop.get(id));
+			if(previousId!=null)
+				p.put(previousId,id);
+			previousId = id;
 			
-			prop.put(id,name);
+			if(id_name.containsKey(id) && !id_name.get(id).equals(name))
+				throw new Exception("stop id: "+id+" has 2 names: "+name+" & "+id_name.get(id));
+			id_name.put(id,name);
 		}
+		
+		store(fileStops(ligne),p);
 	}
+	
+	
 	
 	
 	
@@ -145,17 +133,5 @@ public class DataConversion {
 
 	
 	
-	private File fileArret(String jour, String arret)
-	{
-		File dirJ = new File(new File(outputDir,"arrets"),jour);
-		dirJ.mkdirs();
-		return new File(dirJ,arret+"."+EXT);
-	}
 	
-	private File fileLigne(String jour, String ligne)
-	{
-		File dirJ = new File(new File(outputDir,"lignes"),jour);
-		dirJ.mkdirs();
-		return new File(dirJ,ligne+"."+EXT);
-	}	
 }
