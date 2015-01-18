@@ -103,7 +103,7 @@ public class GameEngine {
 				Map stopStop = (Map) reponse.get("stop");
 				long stopId = Long.valueOf((String) stopStop.get("id"));
 				// String stopName = (String) stopStop.get("name");
-				Date startDate = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ssZ").parse((String) stopStop.get("time"));
+				Date startDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse((String) stopStop.get("time"));
 				prepareNavigation(stopId, targetStopId, startDate, incidents);
 				executeMoves(moveUrl, botSecret, targetStopName, targetStopId, moves, incidents);
 
@@ -116,7 +116,7 @@ public class GameEngine {
 					Map newStop = (Map) reponse.get("stop");
 					long newStopId = Long.valueOf((String) newStop.get("id"));
 					String newStopName = (String) newStop.get("name");
-					Date startDate = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ssZ").parse((String) newStop.get("time"));
+					Date startDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse((String) newStop.get("time"));
 
 					System.out.println(String.format("%s(%d) --> %s(%d) -- %s", targetStopName, targetStopId, newStopName, newStopId, startDate));
 					System.out.println("\n[ Updating navigation... ]");
