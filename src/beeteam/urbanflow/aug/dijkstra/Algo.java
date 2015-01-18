@@ -2,7 +2,11 @@ package beeteam.urbanflow.aug.dijkstra;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import beeteam.urbanflow.aug.DataSearch;
+import beeteam.urbanflow.fte.Moveset;
 
 public class Algo {
 	
@@ -16,11 +20,11 @@ public class Algo {
 	
 	
 	
-	public void compute(Date date, String arret1, String arret2) throws Exception
+	public void compute(Date date, String arret1, String arret2, Map incident, List<Moveset> moves) throws Exception
 	{
-		arret1 = "1226";
-		arret2 = "1373";
-		date = ds.rebuildDate("20150105","15:00:00");
+		//arret1 = "1226";
+		//arret2 = "1373";
+		//date = ds.rebuildDate("20150105","15:00:00");
 		
 		System.out.println("RECHERCHE ENTRE:");
 		System.out.println("- horaire: "+DataSearch.display(date));
@@ -29,6 +33,6 @@ public class Algo {
 		System.out.println("_________________");
 		
 		Dijkstra dj = new Dijkstra();
-		dj.algo(ds,arret1,arret2, DataSearch.horaire(date), DataSearch.jour(date));
+		dj.algo(ds,arret1,arret2,date,moves);
 	}
 }

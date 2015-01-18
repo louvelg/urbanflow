@@ -8,6 +8,7 @@ import java.util.Map;
 
 import beeteam.urbanflow.aug.dijkstra.Algo;
 import beeteam.urbanflow.fte.GameEngine;
+import beeteam.urbanflow.fte.Moveset;
 
 public class UrbanFlow extends GameEngine {
 
@@ -18,7 +19,7 @@ public class UrbanFlow extends GameEngine {
 		try
 		{
 			Algo algo = new Algo(new File("C:\\Users\\Augustin\\Desktop\\24H"));
-			algo.compute(date, ""+firstStopId, ""+targetStopId);
+			algo.compute(date, ""+firstStopId, ""+targetStopId, incidents,moves);
 		}
 		catch(Exception e) {e.printStackTrace();}
 		return moves;

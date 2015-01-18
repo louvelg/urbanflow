@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import beeteam.urbanflow.fte.GameEngine;
+import beeteam.urbanflow.fte.Moveset;
 
 public class UrbanFlow extends GameEngine {
 

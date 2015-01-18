@@ -32,7 +32,7 @@ public class DataSearchMain {
 		Date date = yyyyMMdd_HHmmss.parse("20151107_195500");
 		
 		Algo algo = new Algo(root);
-		algo.compute(date,"1341","1302");
+		algo.compute(date,"1341","1302",null,null);
 	}
 	
 	

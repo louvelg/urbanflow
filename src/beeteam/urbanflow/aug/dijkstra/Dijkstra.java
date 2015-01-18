@@ -1,6 +1,7 @@
 package beeteam.urbanflow.aug.dijkstra;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import beeteam.urbanflow.aug.DataSearch;
+import beeteam.urbanflow.fte.Moveset;
 
 public class Dijkstra {
 
@@ -19,9 +21,12 @@ public class Dijkstra {
 	
 	
 	
-	public void algo(DataSearch ds, String start, String end, String horaire, String jour) throws Exception {
+	public void algo(DataSearch ds, String start, String end, Date date, List<Moveset> moves) throws Exception {
 		
 		this.ds = ds;
+		
+		String horaire = DataSearch.horaire(date);
+		String jour = DataSearch.jour(date);
 		
 		Arret s = new Arret(jour,horaire,start,null);
 		Arret e = new Arret(end);
@@ -35,12 +40,11 @@ public class Dijkstra {
 		
 		while (step(e)) {}
 
+		
+		
 		Arret c = e;
 		List<Arret> arrets = new ArrayList<>();
 		arrets.add(c);
-		
-		//System.out.println("back.size() = "+back.size());
-		//System.out.println(back);
 		
 		while(back.containsKey(c.station))
 		{
@@ -49,10 +53,32 @@ public class Dijkstra {
 		}
 		
 		System.out.println(parcours.keySet().iterator().next() + "min. Liste des arrets ("+arrets.size()+") : " + arrets);
-		//Utils.afficheParcours(parcours, null);
-		// Utils.afficheDistances(this.graph, distances);
+		
+		
+		
+		Arret a_ = null;
+		
+		int size = arrets.size();
+		if(size==0) return;
+		
+		for(int i=0;i<size;i++)
+		{
+			Arret a = arrets.get(size-i-1);
+			if(a_!=null && a_.ligne!=null && !a_.ligne.equals(a.ligne))
+			{
+				Moveset ms = new Moveset(a_.ligne,date,Long.parseLong(a_.station));
+				moves.add(ms);
+			}
+			a_ = a;
+		}
+		
+		Moveset ms = new Moveset(a_.ligne,date,Long.parseLong(a_.station));
+		moves.add(ms);
 	}
 
+	
+	
+	
 	public boolean step(Arret end) throws Exception {
 		//Utils.afficheParcours(parcours, null);
 
