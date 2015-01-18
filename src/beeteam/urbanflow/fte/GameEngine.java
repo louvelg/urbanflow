@@ -105,6 +105,7 @@ public class GameEngine {
 				// String stopName = (String) stopStop.get("name");
 				Date startDate = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ssZ").parse((String) stopStop.get("time"));
 				prepareNavigation(stopId, targetStopId, startDate, incidents);
+				executeMoves(moveUrl, botSecret, targetStopName, targetStopId, moves, incidents);
 
 			} else {
 				if ("moved".equals(status)) {
