@@ -13,7 +13,7 @@ import beeteam.urbanflow.aug.DataSearch;
 public class Dijkstra {
 
 	private Map<Long, Set<Arret>> parcours;
-	private Map<Arret,Arret> back;
+	private Map back;
 	private Set<String> done;
 	private DataSearch ds;
 	
@@ -31,21 +31,24 @@ public class Dijkstra {
 		done = new HashSet<>();
 		
 		addToParcours(0L, s);
+		done.add(s.toString());
+		
 		while (step(e)) {}
 
 		Arret c = e;
 		List<Arret> arrets = new ArrayList<>();
 		arrets.add(c);
 		
-		System.out.println("back.size() = "+back.size());
-		while(back.containsKey(c))
+		//System.out.println("back.size() = "+back.size());
+		//System.out.println(back);
+		
+		while(back.containsKey(c.station))
 		{
-			c = back.get(c);
+			c = (Arret) back.get(c.station);
 			arrets.add(c);
-			System.out.println("ajout d'un parent ^^");
 		}
 		
-		System.out.println(parcours.keySet().iterator().next() + " liste des arrets : " + arrets);
+		System.out.println(parcours.keySet().iterator().next() + "min. Liste des arrets ("+arrets.size()+") : " + arrets);
 		//Utils.afficheParcours(parcours, null);
 		// Utils.afficheDistances(this.graph, distances);
 	}
@@ -70,10 +73,11 @@ public class Dijkstra {
 				if(!done.contains(suivantStr))
 				{
 					long temp = arretPlusProche.getTemps(suivant);
+					System.out.println("suivant="+suivant+" temp="+temp);
 					//System.out.println(arretPlusProche.getTemps(suivant) + min);
 					
 					addToParcours(temp + min, suivant);
-					back.put(suivant,arretPlusProche);
+					back.put(suivant.station,arretPlusProche);
 					done.add(suivantStr);
 				}
 			}

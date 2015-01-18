@@ -18,6 +18,10 @@ public class Algo {
 	
 	public void compute(Date date, String arret1, String arret2) throws Exception
 	{
+		arret1 = "1226";
+		arret2 = "1373";
+		date = ds.rebuildDate("20150105","15:00:00");
+		
 		System.out.println("RECHERCHE ENTRE:");
 		System.out.println("- horaire: "+DataSearch.display(date));
 		System.out.println("- début: "+ds.findStopDisplay(arret1));

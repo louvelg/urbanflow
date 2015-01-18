@@ -57,6 +57,8 @@ public class DataSearch extends Data {
 	
 	public static Long duration_min(String horaire1, String horaire0) throws Exception
 	{
+		//System.out.println("horaire de début : "+horaire0);
+		//System.out.println("horaire de fin : "+horaire1);
 		Date d1 = rebuildDate("20150101",horaire1);
 		Date d0 = rebuildDate("20150101",horaire0);
 		return duration_min(d1,d0);
@@ -64,6 +66,8 @@ public class DataSearch extends Data {
 	
 	public static Long duration_min(Date date1, Date date0)
 	{
+		//System.out.println("date de début : "+date0);
+		//System.out.println("date de fin : "+date1);
 		long t = date1.getTime()-date0.getTime();
 		return t/60000;
 	}
@@ -162,6 +166,8 @@ public class DataSearch extends Data {
 		}
 		Collections.sort(lines);
 		
+		set_ligne.add(ligne);
+		
 		String startLine = horaire+"\t"+ligne;
 		boolean started = false;
 		
@@ -178,6 +184,7 @@ public class DataSearch extends Data {
 				
 				if(!set_ligne.contains(ligne0))
 				{
+					System.out.println("ligne correspondance: "+line);
 					set_ligne.add(ligne0);
 					set.add(new String[]{jour,horaire0,arret,ligne0});
 				}
