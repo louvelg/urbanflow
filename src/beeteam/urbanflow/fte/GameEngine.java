@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,53 +67,69 @@ public class GameEngine {
 					String targetStopName = (String) targetStop.get("name");
 
 					String dtstart = (String) reponse.get("dtstart");
-					Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+00:00").parse(dtstart);
+					Date startDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+00:00").parse(dtstart);
 
 					// long time = Long.valueOf((String) reponse.get("time"));
 					String moveUrl = "http://24hc15.haum.org" + (String) reponse.get("url");
 
 					// **** PREPARATION DE LA NAVIGATION ****//
-					System.out.println(String.format("%s(%d) --> %s(%d) -- %s", firstStopName, firstStopId, targetStopName, targetStopId, date));
+					System.out.println(String.format("%s(%d) --> %s(%d) -- %s", firstStopName, firstStopId, targetStopName, targetStopId, startDate));
 					System.out.println("\n[ Preparing navigation... ]");
-					List<Moveset> moves = prepareNavigation(firstStopId, targetStopId, date, incidents);
+					List<Moveset> moves = prepareNavigation(firstStopId, targetStopId, startDate, incidents);
 
 					// **** EXECUTION DES MOUVEMENTS ****//
-					for (Moveset move : moves) {
-						System.out.println("\n[ Moving... ]");
-						reponse = mouvement(moveUrl, botSecret, move.trackNumber, move.connection, move.toStopId);
-						success = (boolean) reponse.get("success");
-						if (!success) {
-							status = (String) reponse.get("status");
-							String message = (String) reponse.get("message");
-							System.out.println(String.format("%1$s: %2$s", status, message));
-						} else {
-							if ("moved".equals(status)) {
-								// **** MOUVEMENT OK ****//
-								System.out.println("RAS");
-							} else if ("rerouted".equals(status)) {
-								// **** CHANGEMENT CIBLE ****//
-								Map newStop = (Map) reponse.get("stop");
-								long newStopId = Long.valueOf((String) newStop.get("id"));
-								String newStopName = (String) newStop.get("name");
-								System.out.println(String.format("%s(%d) --> %s(%d) -- %s", targetStopName, targetStopId, newStopName, newStopId, date));
-								System.out.println("\n[ Updating navigation... ]");
-								prepareNavigation(targetStopId, newStopId, date, incidents);
-								targetStopId = newStopId;
-								targetStopName = newStopName;
-							} else if ("arrived".equals(status)) {
-								// **** JEU TERMINE ****//
-								String score = (String)reponse.get("score");
-								System.out.println("ARRIVED! Score=" + score);
-								break;
-							}
-						}
-					}
+					executeMoves(moveUrl, botSecret, targetStopName, targetStopId, moves, incidents);
 				}
 			}
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 		}
 		System.out.println("\n[ Game run done. ]");
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void executeMoves(String moveUrl, String botSecret, String targetStopName, long targetStopId, List<Moveset> moves, Map incidents) throws Exception {
+		for (Moveset move : moves) {
+			System.out.println("\n[ Moving... ]");
+			Map reponse = mouvement(moveUrl, botSecret, move.trackNumber, move.connection, move.toStopId);
+			boolean success = (boolean) reponse.get("success");
+			String status = (String) reponse.get("status");
+
+			if (!success) {
+				String message = (String) reponse.get("message");
+				System.out.println(String.format("%1$s: %2$s", status, message));
+
+				// **** ACTUALISATION CIBLE ****//
+				Map stopStop = (Map) reponse.get("stop");
+				long stopId = Long.valueOf((String) stopStop.get("id"));
+				// String stopName = (String) stopStop.get("name");
+				Date startDate = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ssZ").parse((String) stopStop.get("time"));
+				prepareNavigation(stopId, targetStopId, startDate, incidents);
+
+			} else {
+				if ("moved".equals(status)) {
+					// **** MOUVEMENT OK ****//
+					System.out.println("RAS");
+				} else if ("rerouted".equals(status)) {
+					// **** CHANGEMENT CIBLE ****//
+					Map newStop = (Map) reponse.get("stop");
+					long newStopId = Long.valueOf((String) newStop.get("id"));
+					String newStopName = (String) newStop.get("name");
+					Date startDate = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ssZ").parse((String) newStop.get("time"));
+
+					System.out.println(String.format("%s(%d) --> %s(%d) -- %s", targetStopName, targetStopId, newStopName, newStopId, startDate));
+					System.out.println("\n[ Updating navigation... ]");
+					prepareNavigation(targetStopId, newStopId, startDate, incidents);
+					targetStopId = newStopId;
+					targetStopName = newStopName;
+				} else if ("arrived".equals(status)) {
+					// **** JEU TERMINE ****//
+					String score = (String) reponse.get("score");
+					System.out.println("ARRIVED! Score=" + score);
+					break;
+				}
+			}
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -141,19 +156,17 @@ public class GameEngine {
 
 	@SuppressWarnings("rawtypes")
 	private static Map mouvement(String url, String botSecret, String trackNumber, Date connection, long toStopId) throws Exception {
-		String connectionStr = new SimpleDateFormat("d MMM HH:mm:ss yyyy", Locale.ENGLISH).format(connection);
+		String connectionStr = new SimpleDateFormat("d MMM HH:mm:ss yyyy").format(connection);
 		String data = String.format("{\"secret_token\":\"%1$s\",\"track\":\"%2$s\",\"connection\":\"%3$s\",\"to_stop\":\"%4$s\",\"type\":\"move\"}", botSecret, trackNumber, connectionStr, toStopId);
 		String reponse = Connection.postJson(url, data);
 		return (Map) new JsonParser().transform(reponse);
 	}
 
-
-
 	protected List<Moveset> prepareNavigation(long firstStopId, long targetStopId, Date date, @SuppressWarnings("rawtypes") Map incidents) {
 		List<Moveset> moves = new ArrayList<Moveset>();
 		// <TEST-SET>
 		Calendar calendar = Calendar.getInstance();
-		calendar.set(2015, 5, 12, 13, 20, 0);
+		calendar.set(2015, 4, 12, 13, 20, 0);
 		moves.add(new Moveset("3", calendar.getTime(), 1217));
 		// </TEST-SET>
 		return moves;
