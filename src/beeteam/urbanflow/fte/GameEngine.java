@@ -146,17 +146,7 @@ public class GameEngine {
 		return (Map) new JsonParser().transform(reponse);
 	}
 
-	protected class Moveset {
-		String trackNumber;
-		Date connection;
-		long toStopId;
 
-		Moveset(String trackNumber, Date connection, long toStopId) {
-			this.trackNumber = trackNumber;
-			this.connection = connection;
-			this.toStopId = toStopId;
-		}
-	}
 
 	protected List<Moveset> prepareNavigation(long firstStopId, long targetStopId, Date date, @SuppressWarnings("rawtypes") Map incidents) {
 		List<Moveset> moves = new ArrayList<Moveset>();
